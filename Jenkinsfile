@@ -1,50 +1,68 @@
 pipeline{
-    agent any
-    tools {
-      maven 'maven3'
-    }
-    environment {
-      DOCKER_TAG = getVersion()
-    }
-    stages{
-        stage('SCM'){
-            steps{
-                git credentialsId: 'github', 
-                    url: 'https://github.com/Luckodjo/ansible-full-pipeline.git'
-            }
+    
+      agent any
+    
+      tools {
+         maven 'M2_HOME'
         }
-        
-        stage('Maven Build'){
-            steps{
-                sh "mvn clean package"
-            }
+     environment {
+           DOCKER_TAG = getVersion()
         }
-        
-        stage('Docker Build'){
-            steps{
-                sh "docker build . -t luckodjo/web-app:${DOCKER_TAG} "
+    
+        stages{
+          
+          stage('SCM'){
+              steps{
+                 git branch: 'main', url: 'https://github.com/Luckodjo/ansible-full-pipeline.git'
+              }
             }
-        }
-        
-        stage('DockerHub Push'){
-            steps{
-                withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
-                    sh "docker login -u Luckodjo -p ${dockerHubPwd}"
-                }
+            
+            stage('maven build'){
+              steps{
+                  sh "mvn clean package"
+              }
+            }
+          
+           stage('docker build'){
+              steps{
+                  sh "docker build . -t luckodjo/web-app:${DOCKER_TAG} "
+              }
+            }
+          
+            stage('docker push'){
+              steps{
+                  withCredentials([string(credentialsId: 'dock-hub', variable: 'dockerhub_passwd')]) {
+                  sh "docker login -u luckodjo -p ${dockerhub_passwd}"
+                   }
+                  sh "docker build . -t luckodjo/web-app:${DOCKER_TAG} "
+              }
+            }
+            
+              stage('docker deploy'){
+              steps{
+                  
+                  ansiblePlaybook credentialsId: 'myork-key', disableHostKeyChecking: true, extras: "-e DOCKER_TAG=${DOCKER_TAG}", 
+                  installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-container.yml'
+                  
                 
-                sh "docker push Luckodjo/web-app:${DOCKER_TAG} "
+              }
             }
+          
+            
+            
+            
+            
         }
         
-        stage('Docker Deploy'){
-            steps{
-              ansiblePlaybook credentialsId: 'dev-server', disableHostKeyChecking: true, extras: "-e DOCKER_TAG=${DOCKER_TAG}", installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-container.yml'
-            }
-        }
+        
+        
     }
-}
-
-def getVersion(){
-    def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
-    return commitHash
-}
+    
+    def getVersion(){
+        def imageversion = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
+        return imageversion
+    }
+ 
+    
+    
+    
