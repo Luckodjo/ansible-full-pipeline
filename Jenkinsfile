@@ -22,7 +22,7 @@ pipeline{
         
         stage('Docker Build'){
             steps{
-                sh "docker build . -t Luckodjo/web-app:${DOCKER_TAG} "
+                sh "docker build . -t luckodjo/web-app:${DOCKER_TAG} "
             }
         }
         
