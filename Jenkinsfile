@@ -25,7 +25,7 @@ pipeline{
           
            stage('docker build'){
               steps{
-                  sh "docker build . -t web-app:${DOCKER_TAG} "
+                  sh "docker build  -t luckodjo/web-app:${DOCKER_TAG} ."
               }
             }
           
