@@ -34,7 +34,7 @@ pipeline{
                   withCredentials([string(credentialsId: 'dock-hub', variable: 'dockerhub_passwd')]) {
                   sh "docker login -u luckodjo -p ${dockerhub_passwd}"
                    }
-                  sh "docker build . -t luckodjo/web-app:${DOCKER_TAG} "
+                  sh "docker push luckodjo/web-app:${DOCKER_TAG} "
               }
             }
             
