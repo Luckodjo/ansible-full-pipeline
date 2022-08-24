@@ -8,11 +8,7 @@
   <name>dockeransible Maven Webapp</name>
   <url>http://maven.apache.org</url>
 
-  <properties>
-    <failOnMissingWebXml>false</failOnMissingWebXml>   
-  </properties>
-
-  <dependencies>
+   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
